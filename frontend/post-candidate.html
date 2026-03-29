@@ -99,7 +99,7 @@
                 available: 'true',
                 created_at: new Date().toISOString().split('T')[0]
             };
-            const res = await apiCall('/insert_record', { file: 'candidates', record: data });
+            const res = await apiCall('/insert-record', { file: 'candidates', record: data });
             result.innerHTML = `<div class="success">Profile created! <a href="candidate.html?id=${candId}">View your matches &rarr;</a></div>`;
             form.reset();
         } catch (err) {

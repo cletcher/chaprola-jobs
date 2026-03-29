@@ -102,7 +102,7 @@
                 status: 'open',
                 job_desc: form.job_desc.value
             };
-            const res = await apiCall('/insert_record', { file: 'listings', record: data });
+            const res = await apiCall('/insert-record', { file: 'listings', record: data });
             result.innerHTML = `<div class="success">Job posted! <a href="job.html?id=${jobId}">View your listing &rarr;</a></div>`;
             form.reset();
         } catch (err) {
