@@ -1,5 +1,5 @@
 // Chaprola Jobs — data layer
-// Loads from static JSON (data-listings.json, data-candidates.json)
+// Loads from static JSON (data-listings.json, candidates.json)
 // Mercury-style scoring runs client-side for instant results
 
 let _listings = null;
@@ -16,7 +16,7 @@ async function loadListings() {
 
 async function loadCandidates() {
     if (_candidates) return _candidates;
-    const res = await fetch('data-candidates.json');
+    const res = await fetch('candidates.json');
     _candidates = await res.json();
     return _candidates;
 }

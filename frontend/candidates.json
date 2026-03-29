@@ -1,8 +1,6 @@
 [
   {
     "cand_id": "CAND-001",
-    "cand_label": "Alex Chen",
-    "cand_inbox": "alex.chen@email.com",
     "location": "San Francisco, CA",
     "desired_salary": "175000",
     "experience_years": "6",
@@ -10,12 +8,12 @@
     "remote_only": "false",
     "headline": "Full-stack engineer passionate about scalable systems",
     "available": "true",
-    "created_at": "2026-03-01"
+    "created_at": "2026-03-01",
+    "name": "Alex Chen",
+    "email": "alex.chen@email.com"
   },
   {
     "cand_id": "CAND-002",
-    "cand_label": "Sarah Johnson",
-    "cand_inbox": "sarah.j@email.com",
     "location": "New York, NY",
     "desired_salary": "145000",
     "experience_years": "4",
@@ -23,12 +21,12 @@
     "remote_only": "true",
     "headline": "Frontend specialist with design sensibility",
     "available": "true",
-    "created_at": "2026-03-02"
+    "created_at": "2026-03-02",
+    "name": "Sarah Johnson",
+    "email": "sarah.j@email.com"
   },
   {
     "cand_id": "CAND-003",
-    "cand_label": "Michael Brown",
-    "cand_inbox": "mbrown@email.com",
     "location": "Austin, TX",
     "desired_salary": "160000",
     "experience_years": "5",
@@ -36,12 +34,12 @@
     "remote_only": "false",
     "headline": "DevOps engineer focused on automation and reliability",
     "available": "true",
-    "created_at": "2026-03-03"
+    "created_at": "2026-03-03",
+    "name": "Michael Brown",
+    "email": "mbrown@email.com"
   },
   {
     "cand_id": "CAND-004",
-    "cand_label": "Emily Davis",
-    "cand_inbox": "emily.d@email.com",
     "location": "Boston, MA",
     "desired_salary": "150000",
     "experience_years": "4",
@@ -49,12 +47,12 @@
     "remote_only": "false",
     "headline": "Data scientist with ML deployment experience",
     "available": "true",
-    "created_at": "2026-03-04"
+    "created_at": "2026-03-04",
+    "name": "Emily Davis",
+    "email": "emily.d@email.com"
   },
   {
     "cand_id": "CAND-005",
-    "cand_label": "James Wilson",
-    "cand_inbox": "jwilson@email.com",
     "location": "Seattle, WA",
     "desired_salary": "130000",
     "experience_years": "3",
@@ -62,12 +60,12 @@
     "remote_only": "true",
     "headline": "Full-stack developer who loves building products",
     "available": "true",
-    "created_at": "2026-03-05"
+    "created_at": "2026-03-05",
+    "name": "James Wilson",
+    "email": "jwilson@email.com"
   },
   {
     "cand_id": "CAND-006",
-    "cand_label": "Lisa Martinez",
-    "cand_inbox": "lisamart@email.com",
     "location": "San Jose, CA",
     "desired_salary": "180000",
     "experience_years": "6",
@@ -75,12 +73,12 @@
     "remote_only": "false",
     "headline": "ML engineer with production deployment expertise",
     "available": "true",
-    "created_at": "2026-03-06"
+    "created_at": "2026-03-06",
+    "name": "Lisa Martinez",
+    "email": "lisamart@email.com"
   },
   {
     "cand_id": "CAND-007",
-    "cand_label": "David Lee",
-    "cand_inbox": "david.lee@email.com",
     "location": "Chicago, IL",
     "desired_salary": "145000",
     "experience_years": "4",
@@ -88,12 +86,12 @@
     "remote_only": "false",
     "headline": "Backend engineer specializing in high-performance systems",
     "available": "true",
-    "created_at": "2026-03-07"
+    "created_at": "2026-03-07",
+    "name": "David Lee",
+    "email": "david.lee@email.com"
   },
   {
     "cand_id": "CAND-008",
-    "cand_label": "Amanda Taylor",
-    "cand_inbox": "ataylor@email.com",
     "location": "Washington, DC",
     "desired_salary": "165000",
     "experience_years": "5",
@@ -101,12 +99,12 @@
     "remote_only": "true",
     "headline": "Security engineer protecting critical infrastructure",
     "available": "true",
-    "created_at": "2026-03-08"
+    "created_at": "2026-03-08",
+    "name": "Amanda Taylor",
+    "email": "ataylor@email.com"
   },
   {
     "cand_id": "CAND-009",
-    "cand_label": "Chris Garcia",
-    "cand_inbox": "cgarcia@email.com",
     "location": "Los Angeles, CA",
     "desired_salary": "155000",
     "experience_years": "5",
@@ -114,12 +112,12 @@
     "remote_only": "false",
     "headline": "iOS developer with 10+ published apps",
     "available": "true",
-    "created_at": "2026-03-09"
+    "created_at": "2026-03-09",
+    "name": "Chris Garcia",
+    "email": "cgarcia@email.com"
   },
   {
     "cand_id": "CAND-010",
-    "cand_label": "Jessica Kim",
-    "cand_inbox": "jkim@email.com",
     "location": "Los Angeles, CA",
     "desired_salary": "150000",
     "experience_years": "4",
@@ -127,12 +125,12 @@
     "remote_only": "true",
     "headline": "Android expert passionate about mobile UX",
     "available": "true",
-    "created_at": "2026-03-10"
+    "created_at": "2026-03-10",
+    "name": "Jessica Kim",
+    "email": "jkim@email.com"
   },
   {
     "cand_id": "CAND-011",
-    "cand_label": "Robert Anderson",
-    "cand_inbox": "randerson@email.com",
     "location": "Denver, CO",
     "desired_salary": "165000",
     "experience_years": "5",
@@ -140,12 +138,12 @@
     "remote_only": "true",
     "headline": "Platform engineer building developer tools",
     "available": "true",
-    "created_at": "2026-03-11"
+    "created_at": "2026-03-11",
+    "name": "Robert Anderson",
+    "email": "randerson@email.com"
   },
   {
     "cand_id": "CAND-012",
-    "cand_label": "Michelle Thomas",
-    "cand_inbox": "mthomas@email.com",
     "location": "Atlanta, GA",
     "desired_salary": "140000",
     "experience_years": "3",
@@ -153,12 +151,12 @@
     "remote_only": "false",
     "headline": "Data engineer building scalable pipelines",
     "available": "true",
-    "created_at": "2026-03-12"
+    "created_at": "2026-03-12",
+    "name": "Michelle Thomas",
+    "email": "mthomas@email.com"
   },
   {
     "cand_id": "CAND-013",
-    "cand_label": "Kevin White",
-    "cand_inbox": "kwhite@email.com",
     "location": "Portland, OR",
     "desired_salary": "85000",
     "experience_years": "1",
@@ -166,12 +164,12 @@
     "remote_only": "true",
     "headline": "Recent bootcamp grad eager to learn",
     "available": "true",
-    "created_at": "2026-03-13"
+    "created_at": "2026-03-13",
+    "name": "Kevin White",
+    "email": "kwhite@email.com"
   },
   {
     "cand_id": "CAND-014",
-    "cand_label": "Rachel Moore",
-    "cand_inbox": "rmoore@email.com",
     "location": "Mountain View, CA",
     "desired_salary": "240000",
     "experience_years": "10",
@@ -179,12 +177,12 @@
     "remote_only": "false",
     "headline": "Staff engineer with big tech experience",
     "available": "true",
-    "created_at": "2026-03-14"
+    "created_at": "2026-03-14",
+    "name": "Rachel Moore",
+    "email": "rmoore@email.com"
   },
   {
     "cand_id": "CAND-015",
-    "cand_label": "Daniel Clark",
-    "cand_inbox": "dclark@email.com",
     "location": "Phoenix, AZ",
     "desired_salary": "105000",
     "experience_years": "2",
@@ -192,12 +190,12 @@
     "remote_only": "true",
     "headline": "QA engineer focused on test automation",
     "available": "true",
-    "created_at": "2026-03-15"
+    "created_at": "2026-03-15",
+    "name": "Daniel Clark",
+    "email": "dclark@email.com"
   },
   {
     "cand_id": "CAND-016",
-    "cand_label": "Stephanie Hall",
-    "cand_inbox": "shall@email.com",
     "location": "San Francisco, CA",
     "desired_salary": "175000",
     "experience_years": "6",
@@ -205,12 +203,12 @@
     "remote_only": "false",
     "headline": "SRE keeping systems running 24/7",
     "available": "true",
-    "created_at": "2026-03-16"
+    "created_at": "2026-03-16",
+    "name": "Stephanie Hall",
+    "email": "shall@email.com"
   },
   {
     "cand_id": "CAND-017",
-    "cand_label": "Brian Young",
-    "cand_inbox": "byoung@email.com",
     "location": "Miami, FL",
     "desired_salary": "135000",
     "experience_years": "3",
@@ -218,12 +216,12 @@
     "remote_only": "true",
     "headline": "Product-minded engineer who ships fast",
     "available": "true",
-    "created_at": "2026-03-17"
+    "created_at": "2026-03-17",
+    "name": "Brian Young",
+    "email": "byoung@email.com"
   },
   {
     "cand_id": "CAND-018",
-    "cand_label": "Nicole Wright",
-    "cand_inbox": "nwright@email.com",
     "location": "Remote",
     "desired_salary": "170000",
     "experience_years": "4",
@@ -231,12 +229,12 @@
     "remote_only": "true",
     "headline": "Web3 developer building the decentralized future",
     "available": "true",
-    "created_at": "2026-03-18"
+    "created_at": "2026-03-18",
+    "name": "Nicole Wright",
+    "email": "nwright@email.com"
   },
   {
     "cand_id": "CAND-019",
-    "cand_label": "Andrew Scott",
-    "cand_inbox": "ascott@email.com",
     "location": "Boston, MA",
     "desired_salary": "155000",
     "experience_years": "5",
@@ -244,12 +242,12 @@
     "remote_only": "true",
     "headline": "Versatile engineer comfortable across the stack",
     "available": "true",
-    "created_at": "2026-03-19"
+    "created_at": "2026-03-19",
+    "name": "Andrew Scott",
+    "email": "ascott@email.com"
   },
   {
     "cand_id": "CAND-020",
-    "cand_label": "Laura Green",
-    "cand_inbox": "lgreen@email.com",
     "location": "Seattle, WA",
     "desired_salary": "140000",
     "experience_years": "3",
@@ -257,12 +255,12 @@
     "remote_only": "false",
     "headline": "Frontend developer with strong design skills",
     "available": "true",
-    "created_at": "2026-03-20"
+    "created_at": "2026-03-20",
+    "name": "Laura Green",
+    "email": "lgreen@email.com"
   },
   {
     "cand_id": "CAND-021",
-    "cand_label": "Mark Turner",
-    "cand_inbox": "mturner@email.com",
     "location": "Austin, TX",
     "desired_salary": "150000",
     "experience_years": "4",
@@ -270,12 +268,12 @@
     "remote_only": "true",
     "headline": "Cloud engineer with multi-cloud experience",
     "available": "true",
-    "created_at": "2026-03-21"
+    "created_at": "2026-03-21",
+    "name": "Mark Turner",
+    "email": "mturner@email.com"
   },
   {
     "cand_id": "CAND-022",
-    "cand_label": "Jennifer Adams",
-    "cand_inbox": "jadams@email.com",
     "location": "New York, NY",
     "desired_salary": "160000",
     "experience_years": "5",
@@ -283,12 +281,12 @@
     "remote_only": "false",
     "headline": "Senior full-stack developer at fintech startup",
     "available": "true",
-    "created_at": "2026-03-22"
+    "created_at": "2026-03-22",
+    "name": "Jennifer Adams",
+    "email": "jadams@email.com"
   },
   {
     "cand_id": "CAND-023",
-    "cand_label": "Ryan Phillips",
-    "cand_inbox": "rphillips@email.com",
     "location": "Chicago, IL",
     "desired_salary": "125000",
     "experience_years": "2",
@@ -296,12 +294,12 @@
     "remote_only": "true",
     "headline": "Backend developer building APIs",
     "available": "true",
-    "created_at": "2026-03-23"
+    "created_at": "2026-03-23",
+    "name": "Ryan Phillips",
+    "email": "rphillips@email.com"
   },
   {
     "cand_id": "CAND-024",
-    "cand_label": "Megan Campbell",
-    "cand_inbox": "mcampbell@email.com",
     "location": "San Francisco, CA",
     "desired_salary": "185000",
     "experience_years": "7",
@@ -309,12 +307,12 @@
     "remote_only": "false",
     "headline": "Infrastructure architect at scale",
     "available": "true",
-    "created_at": "2026-03-24"
+    "created_at": "2026-03-24",
+    "name": "Megan Campbell",
+    "email": "mcampbell@email.com"
   },
   {
     "cand_id": "CAND-025",
-    "cand_label": "Jason Parker",
-    "cand_inbox": "jparker@email.com",
     "location": "Denver, CO",
     "desired_salary": "145000",
     "experience_years": "4",
@@ -322,12 +320,12 @@
     "remote_only": "true",
     "headline": "Frontend architect with framework expertise",
     "available": "true",
-    "created_at": "2026-03-25"
+    "created_at": "2026-03-25",
+    "name": "Jason Parker",
+    "email": "jparker@email.com"
   },
   {
     "cand_id": "CAND-026",
-    "cand_label": "Ashley Roberts",
-    "cand_inbox": "aroberts@email.com",
     "location": "Atlanta, GA",
     "desired_salary": "135000",
     "experience_years": "3",
@@ -335,12 +333,12 @@
     "remote_only": "false",
     "headline": "Data analyst transitioning to data science",
     "available": "true",
-    "created_at": "2026-03-26"
+    "created_at": "2026-03-26",
+    "name": "Ashley Roberts",
+    "email": "aroberts@email.com"
   },
   {
     "cand_id": "CAND-027",
-    "cand_label": "Tyler Evans",
-    "cand_inbox": "tevans@email.com",
     "location": "Los Angeles, CA",
     "desired_salary": "120000",
     "experience_years": "2",
@@ -348,12 +346,12 @@
     "remote_only": "true",
     "headline": "Java developer building microservices",
     "available": "true",
-    "created_at": "2026-03-27"
+    "created_at": "2026-03-27",
+    "name": "Tyler Evans",
+    "email": "tevans@email.com"
   },
   {
     "cand_id": "CAND-028",
-    "cand_label": "Samantha Hill",
-    "cand_inbox": "shill@email.com",
     "location": "Seattle, WA",
     "desired_salary": "170000",
     "experience_years": "6",
@@ -361,12 +359,12 @@
     "remote_only": "true",
     "headline": "ML engineer focused on NLP",
     "available": "true",
-    "created_at": "2026-03-28"
+    "created_at": "2026-03-28",
+    "name": "Samantha Hill",
+    "email": "shill@email.com"
   },
   {
     "cand_id": "CAND-029",
-    "cand_label": "Brandon Nelson",
-    "cand_inbox": "bnelson@email.com",
     "location": "Phoenix, AZ",
     "desired_salary": "115000",
     "experience_years": "2",
@@ -374,12 +372,12 @@
     "remote_only": "false",
     "headline": "MERN stack developer",
     "available": "false",
-    "created_at": "2026-03-01"
+    "created_at": "2026-03-01",
+    "name": "Brandon Nelson",
+    "email": "bnelson@email.com"
   },
   {
     "cand_id": "CAND-030",
-    "cand_label": "Olivia Mitchell",
-    "cand_inbox": "omitchell@email.com",
     "location": "Boston, MA",
     "desired_salary": "200000",
     "experience_years": "8",
@@ -387,6 +385,8 @@
     "remote_only": "false",
     "headline": "Engineering manager ready for IC role",
     "available": "true",
-    "created_at": "2026-03-02"
+    "created_at": "2026-03-02",
+    "name": "Olivia Mitchell",
+    "email": "omitchell@email.com"
   }
 ]
