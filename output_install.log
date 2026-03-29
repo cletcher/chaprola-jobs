@@ -1,0 +1,1 @@
+Done. The Chaprola MCP server is installed globally (`@chaprola/mcp-server@1.4.3`) and the `.mcp.json` configuration file has been created in the repo root with the chaprola server configured using `npx` as the command.

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidates - Chaprola Jobs</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand"><a href="/">Chaprola Jobs</a></div>
+        <div class="nav-links">
+            <a href="/">Jobs</a>
+            <a href="candidates.html" class="active">Candidates</a>
+            <a href="post-job.html">Post a Job</a>
+            <a href="post-candidate.html">Join as Candidate</a>
+        </div>
+    </nav>
+    <main class="container">
+        <header class="page-header">
+            <h1>Available Candidates</h1>
+            <p class="subtitle">Find your next hire with Mercury-powered matching</p>
+        </header>
+        <div class="filters">
+            <input type="text" id="search" placeholder="Search candidates..." class="search-input">
+            <select id="remote-filter" class="filter-select">
+                <option value="">All Preferences</option>
+                <option value="true">Remote Only</option>
+                <option value="false">Open to On-site</option>
+            </select>
+        </div>
+        <div id="cand-list" class="cards-grid">
+            <div class="loading">Loading candidates...</div>
+        </div>
+    </main>
+    <footer class="footer">
+        <p>Powered by <a href="https://chaprola.org" target="_blank">Chaprola</a> &mdash; Mercury scoring finds the perfect match</p>
+    </footer>
+    <script src="api.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const container = document.getElementById('cand-list');
+        const searchInput = document.getElementById('search');
+        const remoteFilter = document.getElementById('remote-filter');
+        let allCands = [];
+
+        try {
+            allCands = await getCandidates();
+            render(allCands);
+        } catch (e) {
+            container.innerHTML = '<div class="error">Failed to load candidates.</div>';
+        }
+
+        function render(cands) {
+            if (!cands.length) { container.innerHTML = '<div class="loading">No candidates found.</div>'; return; }
+            container.innerHTML = cands.map(c => `
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">${c.name}</div>
+                            <div class="card-headline">${c.headline || ''}</div>
+                        </div>
+                        ${c.remote_only === 'true' ? '<span class="card-badge remote">Remote Only</span>' : ''}
+                    </div>
+                    <div class="card-meta">
+                        <span>📍 ${c.location}</span>
+                        <span>💰 $${parseInt(c.desired_salary).toLocaleString()}</span>
+                        <span>📅 ${c.experience_years} yrs exp</span>
+                    </div>
+                    <div class="card-skills">
+                        ${parseSkills(c.skills).map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                    </div>
+                    <div class="card-actions">
+                        <a href="candidate.html?id=${c.cand_id}" class="btn btn-primary btn-sm">View & Match</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function applyFilters() {
+            const q = searchInput.value.toLowerCase();
+            const remote = remoteFilter.value;
+            let filtered = allCands;
+            if (q) filtered = filtered.filter(c =>
+                c.name.toLowerCase().includes(q) || c.skills.toLowerCase().includes(q) ||
+                (c.headline || '').toLowerCase().includes(q) || c.location.toLowerCase().includes(q)
+            );
+            if (remote) filtered = filtered.filter(c => c.remote_only === remote);
+            render(filtered);
+        }
+
+        searchInput.addEventListener('input', applyFilters);
+        remoteFilter.addEventListener('change', applyFilters);
+    });
+    </script>
+</body>
+</html>

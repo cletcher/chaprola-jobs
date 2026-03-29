@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post a Job - Chaprola Jobs</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand"><a href="/">Chaprola Jobs</a></div>
+        <div class="nav-links">
+            <a href="/">Jobs</a>
+            <a href="candidates.html">Candidates</a>
+            <a href="post-job.html" class="active">Post a Job</a>
+            <a href="post-candidate.html">Join as Candidate</a>
+        </div>
+    </nav>
+    <main class="container">
+        <div class="detail-container">
+            <div class="detail-header">
+                <h1 class="detail-title">Post a New Job</h1>
+                <p class="detail-subtitle">Mercury will automatically match candidates to your listing</p>
+            </div>
+            <div class="detail-section">
+                <form id="job-form">
+                    <div class="form-group">
+                        <label class="form-label">Job Title</label>
+                        <input type="text" name="title" class="form-input" required placeholder="e.g. Senior Backend Engineer">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Company</label>
+                        <input type="text" name="company" class="form-input" required placeholder="e.g. Acme Corp">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Location</label>
+                            <input type="text" name="location" class="form-input" required placeholder="e.g. Austin, TX">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Remote OK?</label>
+                            <select name="remote_ok" class="form-select">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Salary Min ($)</label>
+                            <input type="number" name="salary_min" class="form-input" required placeholder="120000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Salary Max ($)</label>
+                            <input type="number" name="salary_max" class="form-input" required placeholder="180000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Min Experience (yrs)</label>
+                            <input type="number" name="experience_years" class="form-input" required placeholder="3">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Skills (pipe-separated)</label>
+                        <input type="text" name="skills" class="form-input" required placeholder="Python|AWS|Docker|Kubernetes">
+                        <div class="form-hint">Separate skills with | character</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Job Description</label>
+                        <textarea name="job_desc" class="form-textarea" required placeholder="Describe the role..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%;">Post Job</button>
+                </form>
+                <div id="result" style="margin-top:1rem;"></div>
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <p>Powered by <a href="https://chaprola.org" target="_blank">Chaprola</a></p>
+    </footer>
+    <script src="api.js"></script>
+    <script>
+    document.getElementById('job-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const result = document.getElementById('result');
+        const btn = form.querySelector('button[type=submit]');
+        btn.disabled = true;
+        btn.textContent = 'Posting...';
+        try {
+            const jobId = 'JOB-' + Math.random().toString(36).substr(2, 8).toUpperCase();
+            const data = {
+                job_id: jobId,
+                title: form.title.value,
+                company: form.company.value,
+                location: form.location.value,
+                salary_min: form.salary_min.value,
+                salary_max: form.salary_max.value,
+                experience_years: form.experience_years.value,
+                skills: form.skills.value,
+                remote_ok: form.remote_ok.value,
+                posted_at: new Date().toISOString().split('T')[0],
+                status: 'open',
+                job_desc: form.job_desc.value
+            };
+            const res = await apiCall('/insert_record', { file: 'listings', record: data });
+            result.innerHTML = `<div class="success">Job posted! <a href="job.html?id=${jobId}">View your listing &rarr;</a></div>`;
+            form.reset();
+        } catch (err) {
+            result.innerHTML = `<div class="error">Failed to post: ${err.message}</div>`;
+        }
+        btn.disabled = false;
+        btn.textContent = 'Post Job';
+    });
+    </script>
+</body>
+</html>

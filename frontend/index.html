@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chaprola Jobs - Find Your Perfect Match</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/">Chaprola Jobs</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="active">Jobs</a>
+            <a href="candidates.html">Candidates</a>
+            <a href="post-job.html">Post a Job</a>
+            <a href="post-candidate.html">Join as Candidate</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <header class="page-header">
+            <h1>Open Positions</h1>
+            <p class="subtitle">Find your next opportunity with Mercury-powered matching</p>
+        </header>
+
+        <div class="filters">
+            <input type="text" id="search" placeholder="Search jobs..." class="search-input">
+            <select id="remote-filter" class="filter-select">
+                <option value="">All Locations</option>
+                <option value="true">Remote OK</option>
+                <option value="false">On-site Only</option>
+            </select>
+            <select id="exp-filter" class="filter-select">
+                <option value="">Any Experience</option>
+                <option value="1-2">1-2 years</option>
+                <option value="3-4">3-4 years</option>
+                <option value="5+">5+ years</option>
+            </select>
+        </div>
+
+        <div id="jobs-list" class="cards-grid">
+            <div class="loading">Loading jobs...</div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Powered by <a href="https://chaprola.org" target="_blank">Chaprola</a> &mdash; Mercury scoring finds the perfect match</p>
+    </footer>
+
+    <script src="api.js"></script>
+    <script src="jobs.js"></script>
+</body>
+</html>

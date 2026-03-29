@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Detail - Chaprola Jobs</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand"><a href="/">Chaprola Jobs</a></div>
+        <div class="nav-links">
+            <a href="/">Jobs</a>
+            <a href="candidates.html">Candidates</a>
+            <a href="post-job.html">Post a Job</a>
+            <a href="post-candidate.html">Join as Candidate</a>
+        </div>
+    </nav>
+    <main class="container">
+        <a href="/" class="back-link">&larr; Back to Jobs</a>
+        <div id="job-detail" class="detail-container">
+            <div class="loading">Loading job...</div>
+        </div>
+    </main>
+    <footer class="footer">
+        <p>Powered by <a href="https://chaprola.org" target="_blank">Chaprola</a> &mdash; Mercury scoring finds the perfect match</p>
+    </footer>
+    <script src="api.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const container = document.getElementById('job-detail');
+        const jobId = getParam('id');
+        if (!jobId) { container.innerHTML = '<div class="error">No job ID provided.</div>'; return; }
+
+        try {
+            const job = await getJob(jobId);
+            if (!job) { container.innerHTML = '<div class="error">Job not found.</div>'; return; }
+            document.title = `${job.title} at ${job.company} - Chaprola Jobs`;
+
+            container.innerHTML = `
+                <div class="detail-header">
+                    <div style="display:flex;justify-content:space-between;align-items:start;">
+                        <div>
+                            <h1 class="detail-title">${job.title}</h1>
+                            <div class="detail-subtitle">${job.company}</div>
+                        </div>
+                        ${job.remote_ok === 'true' ? '<span class="card-badge remote" style="font-size:1rem;padding:.5rem 1rem;">Remote OK</span>' : ''}
+                    </div>
+                    <div class="detail-meta">
+                        <span>📍 ${job.location}</span>
+                        <span>💰 ${formatSalary(job.salary_min, job.salary_max)}</span>
+                        <span>📅 ${job.experience_years}+ years experience</span>
+                        <span>Posted: ${job.posted_at}</span>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h2>Description</h2>
+                    <p>${job.job_desc || 'No description provided.'}</p>
+                </div>
+                <div class="detail-section">
+                    <h2>Required Skills</h2>
+                    <div class="card-skills" style="padding-top:0;">
+                        ${parseSkills(job.skills).map(s => `<span class="skill-tag" style="font-size:.95rem;padding:.35rem .75rem;">${s}</span>`).join('')}
+                    </div>
+                </div>
+                <div class="detail-section mercury-section" id="matches-section">
+                    <h2>🎯 Mercury Match — Top Candidates</h2>
+                    <div id="matches-list"><div class="loading" style="color:rgba(255,255,255,.8);">Finding matching candidates...</div></div>
+                </div>
+            `;
+
+            // Load Mercury matches
+            const matches = await findMatchingCandidates(job);
+            const matchesEl = document.getElementById('matches-list');
+            if (!matches.length) {
+                matchesEl.innerHTML = '<p style="opacity:.8;">No matching candidates found.</p>';
+            } else {
+                const maxScore = matches[0]._mercury_score || 1;
+                matchesEl.innerHTML = matches.map(c => {
+                    const pct = Math.round(((c._mercury_score || 0) / maxScore) * 100);
+                    const color = pct >= 80 ? '#10b981' : pct >= 60 ? '#f59e0b' : '#ef4444';
+                    return `
+                    <a href="candidate.html?id=${c.cand_id}" class="match-card" style="text-decoration:none;color:white;">
+                        <div class="match-info">
+                            <div class="match-name">${c.name}</div>
+                            <div class="match-detail">${c.headline || ''}</div>
+                            <div class="match-detail" style="margin-top:.25rem;">${c.location} &middot; ${c.experience_years} yrs &middot; $${parseInt(c.desired_salary).toLocaleString()}</div>
+                        </div>
+                        <div class="match-score">
+                            <div class="score-value" style="color:${color};">${pct}%</div>
+                            <div class="score-label">match</div>
+                            <div class="score-bar"><div class="score-fill" style="width:${pct}%;background:${color};"></div></div>
+                        </div>
+                    </a>`;
+                }).join('');
+            }
+        } catch (e) {
+            container.innerHTML = `<div class="error">Error loading job: ${e.message}</div>`;
+        }
+    });
+    </script>
+</body>
+</html>

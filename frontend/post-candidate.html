@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join as Candidate - Chaprola Jobs</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand"><a href="/">Chaprola Jobs</a></div>
+        <div class="nav-links">
+            <a href="/">Jobs</a>
+            <a href="candidates.html">Candidates</a>
+            <a href="post-job.html">Post a Job</a>
+            <a href="post-candidate.html" class="active">Join as Candidate</a>
+        </div>
+    </nav>
+    <main class="container">
+        <div class="detail-container">
+            <div class="detail-header">
+                <h1 class="detail-title">Create Your Profile</h1>
+                <p class="detail-subtitle">Mercury will automatically match you to the best job fits</p>
+            </div>
+            <div class="detail-section">
+                <form id="cand-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="name" class="form-input" required placeholder="Jane Smith">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-input" required placeholder="jane@example.com">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Location</label>
+                            <input type="text" name="location" class="form-input" required placeholder="Austin, TX">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Remote Only?</label>
+                            <select name="remote_only" class="form-select">
+                                <option value="false">Open to On-site</option>
+                                <option value="true">Remote Only</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Desired Salary ($)</label>
+                            <input type="number" name="desired_salary" class="form-input" required placeholder="150000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Years of Experience</label>
+                            <input type="number" name="experience_years" class="form-input" required placeholder="5">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Skills (pipe-separated)</label>
+                        <input type="text" name="skills" class="form-input" required placeholder="Python|React|AWS|Docker">
+                        <div class="form-hint">Separate skills with | character</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Headline</label>
+                        <textarea name="headline" class="form-textarea" required placeholder="One-line pitch — what makes you stand out?" style="min-height:60px;"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%;">Create Profile</button>
+                </form>
+                <div id="result" style="margin-top:1rem;"></div>
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <p>Powered by <a href="https://chaprola.org" target="_blank">Chaprola</a></p>
+    </footer>
+    <script src="api.js"></script>
+    <script>
+    document.getElementById('cand-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const result = document.getElementById('result');
+        const btn = form.querySelector('button[type=submit]');
+        btn.disabled = true;
+        btn.textContent = 'Creating...';
+        try {
+            const candId = 'CAND-' + Math.random().toString(36).substr(2, 8).toUpperCase();
+            const data = {
+                cand_id: candId,
+                name: form.name.value,
+                email: form.email.value,
+                location: form.location.value,
+                desired_salary: form.desired_salary.value,
+                experience_years: form.experience_years.value,
+                skills: form.skills.value,
+                remote_only: form.remote_only.value,
+                headline: form.headline.value,
+                available: 'true',
+                created_at: new Date().toISOString().split('T')[0]
+            };
+            const res = await apiCall('/insert_record', { file: 'candidates', record: data });
+            result.innerHTML = `<div class="success">Profile created! <a href="candidate.html?id=${candId}">View your matches &rarr;</a></div>`;
+            form.reset();
+        } catch (err) {
+            result.innerHTML = `<div class="error">Failed: ${err.message}</div>`;
+        }
+        btn.disabled = false;
+        btn.textContent = 'Create Profile';
+    });
+    </script>
+</body>
+</html>
