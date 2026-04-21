@@ -1,0 +1,14 @@
+# Chaprola team canonical pre-commit config
+# Distributed by fileshare/scripts/install-gitleaks.sh
+# Owned by dalf. If you think this needs changing, route through tawni.
+
+repos:
+  - repo: local
+    hooks:
+      - id: gitleaks
+        name: gitleaks (block committed secrets)
+        description: Scan staged changes for secrets; custom Chaprola rules layered on defaults.
+        entry: gitleaks protect --staged --redact --verbose --config .gitleaks.toml
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
