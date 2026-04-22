@@ -18,3 +18,11 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Secrets (added 2026-04-22 post-FINDING-009/010 scrub)
+.env
+.env.local
+.env.*.local
+.mcp.json
+.mcp.json.local
+*.local
