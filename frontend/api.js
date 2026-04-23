@@ -1,23 +1,103 @@
 // Chaprola Jobs — data layer
-// Hybrid approach: loads from static JSON for listings/candidates
-// Mercury scoring enhanced with skills matching
+// Primary path: /report JOBLIST + CANDLIST (server-side scoring via
+// SCOREJOBS + SCORECANDS). Static JSON (data-listings.json,
+// candidates.json) is the fallback for when the Chaprola data files
+// haven't been deployed under this project yet; remove the fallback
+// once chaprola-jobs/jobs/listings.DA + candidates.DA are live.
+
+const CHAPROLA_API_BASE = 'https://api.chaprola.org';
+const CHAPROLA_USERID = 'chaprola-jobs';
+const CHAPROLA_PROJECT = 'jobs';
+const DEMO_USER_ID = 'demo-user';
+
+function currentUserId() {
+    const u = window.chaprolaAuth && window.chaprolaAuth.getUser();
+    return (u && u.sub) || DEMO_USER_ID;
+}
+
+function isLoggedIn() {
+    return !!(window.chaprolaAuth && window.chaprolaAuth.getUser());
+}
+
+async function runReport(name, extraParams) {
+    const params = Object.assign({
+        userid: CHAPROLA_USERID,
+        project: CHAPROLA_PROJECT,
+        name: name,
+        user_id: currentUserId()
+    }, extraParams || {});
+    const qs = new URLSearchParams(params).toString();
+    const response = await fetch(CHAPROLA_API_BASE + '/report?' + qs);
+    if (!response.ok) {
+        throw new Error('Report ' + name + ' failed: ' + response.status);
+    }
+    return response.text();
+}
+
+// Parse a pipe-delimited /report line with a leading header line of
+// column names. Returns an array of row objects keyed by column.
+function parsePipeTable(text) {
+    const lines = text.trim().split('\n').filter(l => l.trim());
+    if (lines.length === 0) return [];
+    const columns = lines[0].split('|').map(c => c.trim().toLowerCase());
+    return lines.slice(1).map(line => {
+        const parts = line.split('|');
+        const row = {};
+        columns.forEach((c, i) => { row[c] = (parts[i] || '').trim(); });
+        return row;
+    });
+}
 
 let _listings = null;
 let _candidates = null;
 
 async function loadListings() {
     if (_listings) return _listings;
-    const res = await fetch('data-listings.json');
-    if (!res.ok) throw new Error(`Failed to load listings: ${res.status}`);
-    _listings = await res.json();
+    try {
+        const text = await runReport('JOBLIST');
+        _listings = parsePipeTable(text).map(r => ({
+            job_id: r.job_id,
+            title: r.title,
+            company: r.company,
+            location: r.location,
+            remote_ok: r.remote,
+            salary_min: r.salary_min,
+            salary_max: r.salary_max,
+            experience_years: r.exp,
+            skills: r.skills,
+            posted_at: r.posted_at,
+            status: 'open'
+        }));
+    } catch (err) {
+        console.warn('JOBLIST report failed, falling back to static JSON:', err.message);
+        const res = await fetch('data-listings.json');
+        if (!res.ok) throw new Error(`Failed to load listings: ${res.status}`);
+        _listings = await res.json();
+    }
     console.log(`Loaded ${_listings.length} listings`);
     return _listings;
 }
 
 async function loadCandidates() {
     if (_candidates) return _candidates;
-    const res = await fetch('candidates.json');
-    _candidates = await res.json();
+    try {
+        const text = await runReport('CANDLIST');
+        _candidates = parsePipeTable(text).map(r => ({
+            cand_id: r.cand_id,
+            name: r.name,
+            title: r.title,
+            desired_salary: r.desired_salary,
+            remote_only: r.remote_only,
+            experience_years: r.exp,
+            skills: r.skills,
+            created_at: r.created_at,
+            available: 'true'
+        }));
+    } catch (err) {
+        console.warn('CANDLIST report failed, falling back to static JSON:', err.message);
+        const res = await fetch('candidates.json');
+        _candidates = await res.json();
+    }
     return _candidates;
 }
 
@@ -116,41 +196,86 @@ function mercuryScore(records, fields, skillsField, skillsTarget, skillsWeight) 
     }).sort((a, b) => b._mercury_score - a._mercury_score);
 }
 
-// Mercury: find matching candidates for a job (with skills matching!)
+// Mercury: find matching candidates for a job — server-side SCORECANDS.CS
+// Falls back to client-side mercuryScore() if /report is unreachable.
 async function findMatchingCandidates(job) {
-    const all = await loadCandidates();
-    const available = all.filter(c => c.available === 'true');
     const salaryMid = (parseInt(job.salary_min) + parseInt(job.salary_max)) / 2;
-
-    return mercuryScore(
-        available,
-        [
-            { field: 'experience_years', target: parseInt(job.experience_years), weight: 3 },
-            { field: 'desired_salary', target: salaryMid, weight: 2 },
-            { field: 'remote_only', target: job.remote_ok === 'true' ? 'true' : 'false', weight: 1 }
-        ],
-        'skills',        // Skills field in candidate records
-        job.skills,      // Target skills from job
-        5                // Skills weight (highest priority!)
-    ).slice(0, 20);
+    try {
+        const text = await runReport('SCORECANDS', {
+            salary_mid: String(salaryMid),
+            exp_target: String(job.experience_years),
+            remote_pref: job.remote_ok === 'true' ? 'true' : 'false'
+        });
+        const scored = parsePipeTable(text).map(r => ({
+            cand_id: r.cand_id,
+            name: r.name,
+            title: r.title,
+            desired_salary: r.desired_salary,
+            remote_only: r.remote_only,
+            experience_years: r.exp,
+            skills: r.skills,
+            _mercury_score: parseFloat(r.score) || 0
+        })).sort((a, b) => b._mercury_score - a._mercury_score);
+        // Layer on client-side skills matching for presentation (the
+        // server program does proximity + exact-string match but leaves
+        // skills-matching overlay to the frontend until SCORECANDS
+        // supports it structurally).
+        scored.forEach(c => { c._skills_score = calculateSkillsMatch(job.skills, c.skills); });
+        return scored.slice(0, 20);
+    } catch (err) {
+        console.warn('SCORECANDS report failed, falling back to client-side scoring:', err.message);
+        const all = await loadCandidates();
+        const available = all.filter(c => c.available === 'true');
+        return mercuryScore(
+            available,
+            [
+                { field: 'experience_years', target: parseInt(job.experience_years), weight: 3 },
+                { field: 'desired_salary', target: salaryMid, weight: 2 },
+                { field: 'remote_only', target: job.remote_ok === 'true' ? 'true' : 'false', weight: 1 }
+            ],
+            'skills',
+            job.skills,
+            5
+        ).slice(0, 20);
+    }
 }
 
 // Mercury: find matching jobs for a candidate (with skills matching!)
 async function findMatchingJobs(candidate) {
-    const all = await loadListings();
-    const open = all.filter(j => j.status === 'open');
-
-    return mercuryScore(
-        open,
-        [
-            { field: 'salary_max', target: parseInt(candidate.desired_salary), weight: 3 },
-            { field: 'experience_years', target: parseInt(candidate.experience_years), weight: 2 },
-            { field: 'remote_ok', target: candidate.remote_only, weight: 2 }
-        ],
-        'skills',           // Skills field in job records
-        candidate.skills,   // Target skills from candidate
-        5                   // Skills weight (highest priority!)
-    ).slice(0, 20);
+    try {
+        const text = await runReport('SCOREJOBS', {
+            salary_target: String(candidate.desired_salary),
+            exp_target: String(candidate.experience_years),
+            remote_pref: candidate.remote_only === 'true' ? 'true' : 'false'
+        });
+        const scored = parsePipeTable(text).map(r => ({
+            job_id: r.job_id,
+            title: r.title,
+            company: r.company,
+            location: r.location,
+            salary_min: r.salary_min,
+            salary_max: r.salary_max,
+            remote_ok: r.remote,
+            experience_years: r.exp,
+            _mercury_score: parseFloat(r.score) || 0
+        })).sort((a, b) => b._mercury_score - a._mercury_score);
+        return scored.slice(0, 20);
+    } catch (err) {
+        console.warn('SCOREJOBS report failed, falling back to client-side scoring:', err.message);
+        const all = await loadListings();
+        const open = all.filter(j => j.status === 'open');
+        return mercuryScore(
+            open,
+            [
+                { field: 'salary_max', target: parseInt(candidate.desired_salary), weight: 3 },
+                { field: 'experience_years', target: parseInt(candidate.experience_years), weight: 2 },
+                { field: 'remote_ok', target: candidate.remote_only, weight: 2 }
+            ],
+            'skills',
+            candidate.skills,
+            5
+        ).slice(0, 20);
+    }
 }
 
 // Proxy call for authenticated operations (insert-record, etc.)
