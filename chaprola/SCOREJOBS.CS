@@ -6,7 +6,7 @@
 //
 // Mercury-style proximity scoring, done server-side over the full
 // listings file. Weights:
-//   salary_max vs salary_target       weight 3 (proximity 1/(1+abs/10000))
+//   sal_max vs salary_target       weight 3 (proximity 1/(1+abs/10000))
 //   experience_years vs exp_target    weight 2 (proximity 1/(1+abs))
 //   remote_ok == remote_pref          weight 2 (1 if match else 0)
 // Output: top matches pipe-delimited with score first.
@@ -17,41 +17,43 @@ QUERY listings INTO open_jobs WHERE status EQ "open" ORDER BY posted_at DESC
 
 LET salary_target = 0
 LET exp_target = 0
-LET salary_max = 0
+LET sal_max = 0
 LET exp_years = 0
 LET diff = 0
 LET prox_salary = 0
 LET prox_exp = 0
 LET match_remote = 0
 LET score = 0
+LET one = 1
 LET rec = 1
 
 LET salary_target = PARAM.salary_target
 LET exp_target = PARAM.exp_target
+MOVE PARAM.remote_pref U.400 5
 
 PRINT "SCORE|JOB_ID|TITLE|COMPANY|LOCATION|SALARY_MIN|SALARY_MAX|REMOTE|EXP"
 
 100 READ open_jobs rec
     IF EOF END
-    GET salary_max FROM open_jobs.salary_max
+    GET sal_max FROM open_jobs.salary_max
     GET exp_years FROM open_jobs.experience_years
 
-    // Salary proximity (higher salary_max vs desired). Normalize by 10000.
-    LET diff = salary_max - salary_target
-    IF diff LT 0 LET diff = 0 - diff ;
+    // Salary proximity (higher sal_max vs desired). Normalize by 10000.
+    LET diff = sal_max - salary_target
+    IF diff LT 0 LET diff = salary_target - sal_max ;
     LET prox_salary = diff / 10000
     LET prox_salary = prox_salary + 1
-    LET prox_salary = 1 / prox_salary
+    LET prox_salary = one / prox_salary
 
     // Experience proximity.
     LET diff = exp_years - exp_target
-    IF diff LT 0 LET diff = 0 - diff ;
+    IF diff LT 0 LET diff = exp_target - exp_years ;
     LET prox_exp = diff + 1
-    LET prox_exp = 1 / prox_exp
+    LET prox_exp = one / prox_exp
 
     // Remote match: 1 if equal, else 0.
     LET match_remote = 0
-    IF EQUAL open_jobs.remote_ok PARAM.remote_pref 5 LET match_remote = 1 ;
+    IF EQUAL open_jobs.remote_ok U.400 5 LET match_remote = 1 ;
 
     // Weighted score: 3*salary + 2*exp + 2*remote. Max = 7.
     LET score = prox_salary * 3

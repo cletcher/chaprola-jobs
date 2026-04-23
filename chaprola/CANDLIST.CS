@@ -11,6 +11,6 @@ LET rec = 1
 
 100 READ avail rec
     IF EOF END
-    PRINT avail.cand_id + "|" + avail.name + "|" + avail.title + "|" + avail.desired_salary + "|" + avail.remote_only + "|" + avail.experience_years + "|" + avail.skills + "|" + avail.created_at
+    PRINT avail.cand_id + "|" + avail.cand_label + "|" + avail.headline + "|" + avail.desired_salary + "|" + avail.remote_only + "|" + avail.experience_years + "|" + avail.skills + "|" + avail.created_at
     LET rec = rec + 1
     GOTO 100

@@ -1,0 +1,1 @@
+JOBLIST returns every open job listing as pipe-delimited rows. It takes no parameters — open jobs are public so any candidate can browse them regardless of login state. Each row carries job_id|title|company|location|remote_ok|salary_min|salary_max|experience_years|skills|posted_at ordered by posted_at DESC. Called by the public browse page of chaprola-jobs.

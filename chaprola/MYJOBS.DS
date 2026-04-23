@@ -1,0 +1,1 @@
+MYJOBS returns the listings posted by the authenticated caller. Scoped by PARAM.user_id matching listings.poster_sub — the platform injects the caller's sub automatically for chp_user_ tokens. Output is pipe-delimited job_id|title|company|location|status|posted_at. Used by the "My Postings" tab on the employer dashboard.

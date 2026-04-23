@@ -1,0 +1,1 @@
+CANDLIST returns every available candidate as pipe-delimited rows. No per-caller filter — the candidate marketplace is public so employers can browse. Output fields: cand_id|cand_label|headline|desired_salary|remote_only|experience_years|skills|created_at ordered by created_at DESC with WHERE available EQ "true". Called by the employer browse page.
