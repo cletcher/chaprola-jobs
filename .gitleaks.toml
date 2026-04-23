@@ -17,11 +17,12 @@ description = "Chaprola per-user session token (chp_user_ prefix, 64 hex)"
 regex = '''\bchp_user_[0-9a-f]{64}\b'''
 keywords = ["chp_user_"]
 
-[[rules]]
-id = "chaprola-site-key"
-description = "Chaprola site key for origin-scoped public calls (site_ prefix, 64 hex)"
-regex = '''\bsite_[0-9a-f]{64}\b'''
-keywords = ["site_"]
+## NOTE: no `chaprola-site-key` rule.
+## `site_` keys are origin-scoped public API keys by design — they ship in
+## frontend source. Flagging them in pre-commit blocks legitimate commits in
+## every frontend repo that uses the origin-scoped public-key pattern (audited
+## 2026-04-21: 5 of 7 sample-app repos contained site_ keys in frontend code,
+## all by-design). Removed after the 2026-04-21 sibling-repo audit.
 
 [[rules]]
 id = "anthropic-api-key"

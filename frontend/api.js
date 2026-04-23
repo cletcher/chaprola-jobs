@@ -9,6 +9,10 @@ const CHAPROLA_API_BASE = 'https://api.chaprola.org';
 const CHAPROLA_USERID = 'chaprola-jobs';
 const CHAPROLA_PROJECT = 'jobs';
 const DEMO_USER_ID = 'demo-user';
+// Origin-locked site key: allowed_origins=[https://chaprola.org],
+// allowed_endpoints=[/query, /insert-record, /update-record, /report,
+// /run, /run-each]. Safe to embed — the backend denies off-origin use.
+const SITE_KEY = 'site_db67127f9d6c9f66f8643fad18314598fa0a2ac6b50ab851e4c209205dc2017a';
 
 function currentUserId() {
     const u = window.chaprolaAuth && window.chaprolaAuth.getUser();
@@ -62,7 +66,7 @@ async function loadListings() {
     if (_listings) return _listings;
     try {
         const text = await runReport('JOBLIST');
-        _listings = parsePipeTable(text).map(r => ({
+        const parsed = parsePipeTable(text).map(r => ({
             job_id: r.job_id,
             title: r.title,
             company: r.company,
@@ -76,6 +80,17 @@ async function loadListings() {
             posted_at: r.posted_at,
             status: 'open'
         }));
+        // Defense-in-depth: a silent header-missing /report response would
+        // yield rows with r.job_id === undefined (parsePipeTable treats the
+        // first data row as column names). Detect + fall back. This is the
+        // "blank cards rendered without ever erroring" case Tawni's QC
+        // flagged — it was real, the header fix prevents it from recurring,
+        // and this guard prevents any future regression from resurfacing
+        // silently.
+        if (parsed.length > 0 && !parsed[0].job_id) {
+            throw new Error('JOBLIST missing header row — falling back to static JSON');
+        }
+        _listings = parsed;
     } catch (err) {
         console.warn('JOBLIST report failed, falling back to static JSON:', err.message);
         const res = await fetch('data-listings.json');
@@ -90,7 +105,7 @@ async function loadCandidates() {
     if (_candidates) return _candidates;
     try {
         const text = await runReport('CANDLIST');
-        _candidates = parsePipeTable(text).map(r => ({
+        const parsed = parsePipeTable(text).map(r => ({
             cand_id: r.cand_id,
             name: r.name,
             title: r.title,
@@ -102,6 +117,13 @@ async function loadCandidates() {
             created_at: r.created_at,
             available: 'true'
         }));
+        // Same defense-in-depth as loadListings: detect header-missing
+        // corruption and fall back to static JSON rather than render
+        // blank cards.
+        if (parsed.length > 0 && !parsed[0].cand_id) {
+            throw new Error('CANDLIST missing header row — falling back to static JSON');
+        }
+        _candidates = parsed;
     } catch (err) {
         console.warn('CANDLIST report failed, falling back to static JSON:', err.message);
         const res = await fetch('candidates.json');
@@ -288,10 +310,27 @@ async function findMatchingJobs(candidate) {
     }
 }
 
-// Proxy call for authenticated operations (insert-record, etc.)
+// Authenticated write call using the origin-locked site key. The body
+// passed in carries the per-call fields (file, record, where, set); we
+// inject userid + project here so every call is consistently scoped.
 async function apiCall(endpoint, body) {
-    // For writes, we need authentication - this would normally go through a server proxy
-    throw new Error('Write operations require backend proxy - not yet implemented');
+    const fullBody = Object.assign({ userid: CHAPROLA_USERID, project: CHAPROLA_PROJECT }, body);
+    const res = await fetch(CHAPROLA_API_BASE + endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + SITE_KEY
+        },
+        body: JSON.stringify(fullBody)
+    });
+    const text = await res.text();
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch (e) { /* plaintext */ }
+    if (!res.ok) {
+        const msg = (data && (data.error || data.message)) || text || ('HTTP ' + res.status);
+        throw new Error(msg);
+    }
+    return data;
 }
 
 // Utility: format salary

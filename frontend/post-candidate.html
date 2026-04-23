@@ -276,7 +276,7 @@
     <footer class="footer">
         <p>Powered by <a href="https://chaprola.org" target="_blank">Chaprola</a></p>
     </footer>
-    <script src="api.js?v=20260423-pipefix2"></script>
+    <script src="api.js?v=20260423-fallback"></script>
     <script>
     document.getElementById('cand-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -289,8 +289,8 @@
             const candId = 'CAND-' + Math.random().toString(36).substr(2, 8).toUpperCase();
             const data = {
                 cand_id: candId,
-                name: form.name.value,
-                email: form.email.value,
+                cand_label: form.name.value,
+                cand_inbox: form.email.value,
                 location: form.location.value,
                 desired_salary: form.desired_salary.value,
                 experience_years: form.experience_years.value,
@@ -298,7 +298,8 @@
                 remote_only: form.remote_only.value,
                 headline: form.headline.value,
                 available: 'true',
-                created_at: new Date().toISOString().split('T')[0]
+                created_at: new Date().toISOString().split('T')[0],
+                owner_sub: currentUserId()
             };
             const res = await apiCall('/insert-record', { file: 'candidates', record: data });
             result.innerHTML = `<div class="success">Profile created! <a href="candidate.html?id=${candId}">View your matches &rarr;</a></div>`;
