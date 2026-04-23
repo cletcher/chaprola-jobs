@@ -36,14 +36,21 @@ async function runReport(name, extraParams) {
 
 // Parse a pipe-delimited /report line with a leading header line of
 // column names. Returns an array of row objects keyed by column.
+// The last column is greedy-absorbed: its value is the join of all
+// trailing parts. This lets the last field carry internal pipes
+// (e.g. the skills list), which is how JOBLIST/CANDLIST/SCORECANDS
+// output skills.
 function parsePipeTable(text) {
     const lines = text.trim().split('\n').filter(l => l.trim());
     if (lines.length === 0) return [];
     const columns = lines[0].split('|').map(c => c.trim().toLowerCase());
+    const lastIdx = columns.length - 1;
     return lines.slice(1).map(line => {
         const parts = line.split('|');
         const row = {};
-        columns.forEach((c, i) => { row[c] = (parts[i] || '').trim(); });
+        columns.forEach((c, i) => {
+            row[c] = (i === lastIdx ? parts.slice(i).join('|') : (parts[i] || '')).trim();
+        });
         return row;
     });
 }
@@ -64,6 +71,7 @@ async function loadListings() {
             salary_min: r.salary_min,
             salary_max: r.salary_max,
             experience_years: r.exp,
+            job_desc: r.job_desc,
             skills: r.skills,
             posted_at: r.posted_at,
             status: 'open'
@@ -86,6 +94,7 @@ async function loadCandidates() {
             cand_id: r.cand_id,
             name: r.name,
             title: r.title,
+            location: r.location,
             desired_salary: r.desired_salary,
             remote_only: r.remote_only,
             experience_years: r.exp,
@@ -210,6 +219,7 @@ async function findMatchingCandidates(job) {
             cand_id: r.cand_id,
             name: r.name,
             title: r.title,
+            location: r.location,
             desired_salary: r.desired_salary,
             remote_only: r.remote_only,
             experience_years: r.exp,
