@@ -5,8 +5,209 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candidates - Chaprola Jobs</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- chp-auth-widget: chaprola-auth.js -->
+    <script src="https://chaprola.org/chaprola-auth.js"></script>
 </head>
 <body>
+    <!-- BEGIN chp-auth-widget -->
+
+<div id="chp-auth-bar" class="chp-auth-bar" aria-label="Account">
+  <span id="chp-auth-identity" class="chp-auth-identity" hidden></span>
+  <button id="chp-auth-login-btn" class="chp-auth-btn chp-auth-btn--primary" type="button" hidden>Log in</button>
+  <button id="chp-auth-signup-btn" class="chp-auth-btn" type="button" hidden>Sign up</button>
+  <button id="chp-auth-logout-btn" class="chp-auth-btn" type="button" hidden>Log out</button>
+</div>
+
+<dialog id="chp-auth-dialog" class="chp-auth-dialog">
+  <form id="chp-auth-form" method="dialog" class="chp-auth-form">
+    <h2 id="chp-auth-title">Log in</h2>
+    <label>
+      <span>Email</span>
+      <input id="chp-auth-email" type="email" autocomplete="username" required>
+    </label>
+    <label>
+      <span>Password</span>
+      <input id="chp-auth-password" type="password" autocomplete="current-password" required minlength="8">
+    </label>
+    <label id="chp-auth-displayname-label" hidden>
+      <span>Display name (optional)</span>
+      <input id="chp-auth-displayname" type="text" autocomplete="nickname">
+    </label>
+    <div id="chp-auth-error" class="chp-auth-error" role="alert"></div>
+    <div class="chp-auth-actions">
+      <button value="cancel" class="chp-auth-btn">Cancel</button>
+      <button id="chp-auth-submit" value="submit" class="chp-auth-btn chp-auth-btn--primary" type="submit">Log in</button>
+    </div>
+  </form>
+</dialog>
+
+<style>
+  .chp-auth-bar {
+    position: fixed;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 9999;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font: 14px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .chp-auth-identity {
+    padding: 0.2rem 0.6rem;
+    color: #94a3b8;
+    font-size: 0.85rem;
+  }
+  .chp-auth-btn {
+    padding: 0.35rem 0.85rem;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+    font: inherit;
+  }
+  .chp-auth-btn:hover { background: #1e293b; }
+  .chp-auth-btn--primary {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: white;
+  }
+  .chp-auth-btn--primary:hover { background: #1d4ed8; }
+  .chp-auth-dialog {
+    max-width: 360px;
+    border: 1px solid #334155;
+    background: #0b1220;
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 1.25rem;
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .chp-auth-dialog::backdrop { background: rgba(0,0,0,0.5); }
+  .chp-auth-form h2 { margin: 0 0 0.75rem; font-size: 1.25rem; color: #f1f5f9; }
+  .chp-auth-form label { display: block; margin: 0.5rem 0; }
+  .chp-auth-form label span { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.2rem; }
+  .chp-auth-form input {
+    width: 100%;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 6px;
+    font: inherit;
+    box-sizing: border-box;
+  }
+  .chp-auth-error {
+    min-height: 1.2em;
+    color: #fca5a5;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+  }
+  .chp-auth-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+</style>
+
+<script>
+(function () {
+  var bar = document.getElementById('chp-auth-bar');
+  var identity = document.getElementById('chp-auth-identity');
+  var loginBtn = document.getElementById('chp-auth-login-btn');
+  var signupBtn = document.getElementById('chp-auth-signup-btn');
+  var logoutBtn = document.getElementById('chp-auth-logout-btn');
+  var dialog = document.getElementById('chp-auth-dialog');
+  var form = document.getElementById('chp-auth-form');
+  var title = document.getElementById('chp-auth-title');
+  var submit = document.getElementById('chp-auth-submit');
+  var emailIn = document.getElementById('chp-auth-email');
+  var passIn = document.getElementById('chp-auth-password');
+  var nameLabel = document.getElementById('chp-auth-displayname-label');
+  var nameIn = document.getElementById('chp-auth-displayname');
+  var errorBox = document.getElementById('chp-auth-error');
+  var mode = 'login';
+
+  function waitForAuth() {
+    if (window.chaprolaAuth) return Promise.resolve();
+    return new Promise(function (resolve) {
+      var tries = 0;
+      var timer = setInterval(function () {
+        if (window.chaprolaAuth || ++tries > 50) {
+          clearInterval(timer);
+          resolve();
+        }
+      }, 100);
+    });
+  }
+
+  function render() {
+    var user = window.chaprolaAuth && window.chaprolaAuth.getUser();
+    if (user) {
+      identity.hidden = false;
+      identity.textContent = user.display_name || user.email || 'signed in';
+      logoutBtn.hidden = false;
+      loginBtn.hidden = true;
+      signupBtn.hidden = true;
+    } else {
+      identity.hidden = true;
+      logoutBtn.hidden = true;
+      loginBtn.hidden = false;
+      signupBtn.hidden = false;
+    }
+  }
+
+  function openDialog(nextMode) {
+    mode = nextMode;
+    title.textContent = mode === 'signup' ? 'Sign up' : 'Log in';
+    submit.textContent = mode === 'signup' ? 'Sign up' : 'Log in';
+    nameLabel.hidden = mode !== 'signup';
+    errorBox.textContent = '';
+    form.reset();
+    dialog.showModal();
+  }
+
+  form.addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    errorBox.textContent = '';
+    submit.disabled = true;
+    try {
+      var body = { email: emailIn.value.trim(), password: passIn.value };
+      if (mode === 'signup') {
+        var dn = nameIn.value.trim();
+        if (dn) body.display_name = dn;
+        await window.chaprolaAuth.signup(body);
+      } else {
+        await window.chaprolaAuth.login(body);
+      }
+      await window.chaprolaAuth.me();
+      dialog.close();
+      render();
+    } catch (err) {
+      errorBox.textContent = (err && err.message) || String(err);
+    } finally {
+      submit.disabled = false;
+    }
+  });
+
+  loginBtn.addEventListener('click', function () { openDialog('login'); });
+  signupBtn.addEventListener('click', function () { openDialog('signup'); });
+  logoutBtn.addEventListener('click', async function () {
+    await window.chaprolaAuth.logout();
+    render();
+  });
+
+  waitForAuth().then(function () {
+    if (!window.chaprolaAuth) {
+      bar.style.display = 'none';
+      return;
+    }
+    window.chaprolaAuth.onAuthChange(render);
+    window.chaprolaAuth.me().catch(function () {}).finally(render);
+  });
+})();
+</script>
+    <!-- END chp-auth-widget -->
     <nav class="navbar">
         <div class="nav-brand"><a href="./">Chaprola Jobs</a></div>
         <div class="nav-links">
