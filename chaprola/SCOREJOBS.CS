@@ -3,13 +3,6 @@
 //   PARAM.salary_target — candidate's desired salary (numeric)
 //   PARAM.exp_target    — candidate's experience_years (numeric)
 //   PARAM.remote_pref   — "true" or "false"
-//
-// Mercury-style proximity scoring, done server-side over the full
-// listings file. Weights:
-//   sal_max vs salary_target       weight 3 (proximity 1/(1+abs/10000))
-//   experience_years vs exp_target    weight 2 (proximity 1/(1+abs))
-//   remote_ok == remote_pref          weight 2 (1 if match else 0)
-// Output: top matches pipe-delimited with score first.
 
 OPEN PRIMARY "listings"
 
@@ -38,24 +31,20 @@ PRINT "SCORE|JOB_ID|TITLE|COMPANY|LOCATION|SALARY_MIN|SALARY_MAX|REMOTE|EXP"
     GET sal_max FROM open_jobs.salary_max
     GET exp_years FROM open_jobs.experience_years
 
-    // Salary proximity (higher sal_max vs desired). Normalize by 10000.
     LET diff = sal_max - salary_target
     IF diff LT 0 LET diff = salary_target - sal_max ;
     LET prox_salary = diff / 10000
     LET prox_salary = prox_salary + 1
     LET prox_salary = one / prox_salary
 
-    // Experience proximity.
     LET diff = exp_years - exp_target
     IF diff LT 0 LET diff = exp_target - exp_years ;
     LET prox_exp = diff + 1
     LET prox_exp = one / prox_exp
 
-    // Remote match: 1 if equal, else 0.
     LET match_remote = 0
     IF EQUAL open_jobs.remote_ok U.400 5 LET match_remote = 1 ;
 
-    // Weighted score: 3*salary + 2*exp + 2*remote. Max = 7.
     LET score = prox_salary * 3
     LET prox_exp = prox_exp * 2
     LET score = score + prox_exp

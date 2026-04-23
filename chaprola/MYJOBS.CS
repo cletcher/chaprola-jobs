@@ -8,6 +8,8 @@ QUERY listings INTO mine WHERE poster_sub EQ PARAM.user_id ORDER BY posted_at DE
 
 LET rec = 1
 
+PRINT "job_id|title|company|location|status|posted_at"
+
 100 READ mine rec
     IF EOF END
     PRINT mine.job_id + "|" + mine.title + "|" + mine.company + "|" + mine.location + "|" + mine.status + "|" + mine.posted_at

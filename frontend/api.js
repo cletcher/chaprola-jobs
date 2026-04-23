@@ -108,6 +108,7 @@ async function loadCandidates() {
         const parsed = parsePipeTable(text).map(r => ({
             cand_id: r.cand_id,
             name: r.name,
+            headline: r.title,
             title: r.title,
             location: r.location,
             desired_salary: r.desired_salary,

@@ -4,12 +4,7 @@
 //   PARAM.exp_target   — job's experience_years
 //   PARAM.remote_pref  — "true" or "false" from the job's remote_ok
 //
-// Mercury-style proximity scoring, done server-side over all available
-// candidates. Weights:
-//   des_sal vs salary_mid      weight 3
-//   experience_years vs exp_target    weight 2
-//   remote_only == remote_pref        weight 2
-// Output: top matches pipe-delimited with score first.
+// Output column order: skills LAST (internally pipe-delimited).
 
 OPEN PRIMARY "candidates"
 
@@ -31,7 +26,7 @@ LET salary_mid = PARAM.salary_mid
 LET exp_target = PARAM.exp_target
 MOVE PARAM.remote_pref U.400 5
 
-PRINT "SCORE|CAND_ID|NAME|HEADLINE|DESIRED_SALARY|REMOTE_ONLY|EXP|SKILLS"
+PRINT "score|cand_id|name|title|location|desired_salary|remote_only|exp|skills"
 
 100 READ avail rec
     IF EOF END
@@ -59,6 +54,6 @@ PRINT "SCORE|CAND_ID|NAME|HEADLINE|DESIRED_SALARY|REMOTE_ONLY|EXP|SKILLS"
     LET score = score + prox_salary
     LET score = score / 7
 
-    PRINT score + "|" + avail.cand_id + "|" + avail.cand_label + "|" + avail.headline + "|" + avail.desired_salary + "|" + avail.remote_only + "|" + avail.experience_years + "|" + avail.skills
+    PRINT score + "|" + avail.cand_id + "|" + avail.cand_label + "|" + avail.headline + "|" + avail.location + "|" + avail.desired_salary + "|" + avail.remote_only + "|" + avail.experience_years + "|" + avail.skills
     LET rec = rec + 1
     GOTO 100

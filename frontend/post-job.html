@@ -278,12 +278,16 @@
     <footer class="footer">
         <p>Powered by <a href="https://chaprola.org" target="_blank">Chaprola</a></p>
     </footer>
-    <script src="api.js?v=20260423-fallback"></script>
+    <script src="api.js?v=20260423-r2"></script>
     <script>
     document.getElementById('job-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const form = e.target;
         const result = document.getElementById('result');
+        if (!isLoggedIn()) {
+            result.innerHTML = '<div class="error">Please log in (top-right) before posting a job — your sub stamps the listing owner.</div>';
+            return;
+        }
         const btn = form.querySelector('button[type=submit]');
         btn.disabled = true;
         btn.textContent = 'Posting...';
