@@ -226,7 +226,7 @@
     <footer class="footer">
         <p>Powered by <a href="https://chaprola.org" target="_blank">Chaprola</a> &mdash; Mercury scoring finds the perfect match</p>
     </footer>
-    <script src="api.js?v=20260423-r2"></script>
+    <script src="api.js?v=20260424-r3"></script>
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
         const container = document.getElementById('cand-detail');
@@ -270,9 +270,12 @@
             if (!matches.length) {
                 matchesEl.innerHTML = '<p style="opacity:.8;">No matching jobs found.</p>';
             } else {
-                const maxScore = matches[0]._mercury_score || 1;
+                // Absolute percentage (Mercury scores are already
+                // normalised 0-1). Don't rescale to maxScore — that
+                // dressed weak result sets up as 100% by definition
+                // (Vogel A1, 2026-04-23).
                 matchesEl.innerHTML = matches.map(j => {
-                    const pct = Math.round(((j._mercury_score || 0) / maxScore) * 100);
+                    const pct = Math.round((j._mercury_score || 0) * 100);
                     const color = pct >= 80 ? '#10b981' : pct >= 60 ? '#f59e0b' : '#ef4444';
                     return `
                     <a href="job.html?id=${j.job_id}" class="match-card" style="text-decoration:none;color:white;">

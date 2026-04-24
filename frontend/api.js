@@ -228,6 +228,20 @@ function mercuryScore(records, fields, skillsField, skillsTarget, skillsWeight) 
     }).sort((a, b) => b._mercury_score - a._mercury_score);
 }
 
+// Server-side Mercury programs (SCOREJOBS / SCORECANDS) blend salary,
+// experience, and remote-preference into a 0-1 score. Skills overlap is
+// computed client-side because pipe-delimited string-set intersection
+// isn't a CS primitive yet (Tawni filed `SET_INTERSECT_COUNT` to Remo).
+// blendWithSkills mixes the server score with the skills score using
+// the same 7:5 weight ratio the client-side fallback uses, so the
+// displayed _mercury_score reflects all four signals — matching the
+// README claim that skills are part of the match.
+const SCORE_WEIGHT = 7;
+const SKILLS_WEIGHT = 5;
+function blendWithSkills(serverScore, skillsScore) {
+    return (serverScore * SCORE_WEIGHT + skillsScore * SKILLS_WEIGHT) / (SCORE_WEIGHT + SKILLS_WEIGHT);
+}
+
 // Mercury: find matching candidates for a job — server-side SCORECANDS.CS
 // Falls back to client-side mercuryScore() if /report is unreachable.
 async function findMatchingCandidates(job) {
@@ -238,22 +252,23 @@ async function findMatchingCandidates(job) {
             exp_target: String(job.experience_years),
             remote_pref: job.remote_ok === 'true' ? 'true' : 'false'
         });
-        const scored = parsePipeTable(text).map(r => ({
-            cand_id: r.cand_id,
-            name: r.name,
-            title: r.title,
-            location: r.location,
-            desired_salary: r.desired_salary,
-            remote_only: r.remote_only,
-            experience_years: r.exp,
-            skills: r.skills,
-            _mercury_score: parseFloat(r.score) || 0
-        })).sort((a, b) => b._mercury_score - a._mercury_score);
-        // Layer on client-side skills matching for presentation (the
-        // server program does proximity + exact-string match but leaves
-        // skills-matching overlay to the frontend until SCORECANDS
-        // supports it structurally).
-        scored.forEach(c => { c._skills_score = calculateSkillsMatch(job.skills, c.skills); });
+        const scored = parsePipeTable(text).map(r => {
+            const serverScore = parseFloat(r.score) || 0;
+            const skillsScore = calculateSkillsMatch(job.skills, r.skills);
+            return {
+                cand_id: r.cand_id,
+                name: r.name,
+                title: r.title,
+                location: r.location,
+                desired_salary: r.desired_salary,
+                remote_only: r.remote_only,
+                experience_years: r.exp,
+                skills: r.skills,
+                _server_score: serverScore,
+                _skills_score: skillsScore,
+                _mercury_score: blendWithSkills(serverScore, skillsScore)
+            };
+        }).sort((a, b) => b._mercury_score - a._mercury_score);
         return scored.slice(0, 20);
     } catch (err) {
         console.warn('SCORECANDS report failed, falling back to client-side scoring:', err.message);
@@ -268,7 +283,7 @@ async function findMatchingCandidates(job) {
             ],
             'skills',
             job.skills,
-            5
+            SKILLS_WEIGHT
         ).slice(0, 20);
     }
 }
@@ -281,17 +296,24 @@ async function findMatchingJobs(candidate) {
             exp_target: String(candidate.experience_years),
             remote_pref: candidate.remote_only === 'true' ? 'true' : 'false'
         });
-        const scored = parsePipeTable(text).map(r => ({
-            job_id: r.job_id,
-            title: r.title,
-            company: r.company,
-            location: r.location,
-            salary_min: r.salary_min,
-            salary_max: r.salary_max,
-            remote_ok: r.remote,
-            experience_years: r.exp,
-            _mercury_score: parseFloat(r.score) || 0
-        })).sort((a, b) => b._mercury_score - a._mercury_score);
+        const scored = parsePipeTable(text).map(r => {
+            const serverScore = parseFloat(r.score) || 0;
+            const skillsScore = calculateSkillsMatch(candidate.skills, r.skills);
+            return {
+                job_id: r.job_id,
+                title: r.title,
+                company: r.company,
+                location: r.location,
+                salary_min: r.salary_min,
+                salary_max: r.salary_max,
+                remote_ok: r.remote,
+                experience_years: r.exp,
+                skills: r.skills,
+                _server_score: serverScore,
+                _skills_score: skillsScore,
+                _mercury_score: blendWithSkills(serverScore, skillsScore)
+            };
+        }).sort((a, b) => b._mercury_score - a._mercury_score);
         return scored.slice(0, 20);
     } catch (err) {
         console.warn('SCOREJOBS report failed, falling back to client-side scoring:', err.message);
@@ -306,7 +328,7 @@ async function findMatchingJobs(candidate) {
             ],
             'skills',
             candidate.skills,
-            5
+            SKILLS_WEIGHT
         ).slice(0, 20);
     }
 }
